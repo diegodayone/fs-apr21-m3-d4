@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Strive Library</h1>
+        <div class="input-group mb-3" id="searchSection">
+            <input type="text" class="form-control" placeholder="Search Book" aria-label="Search Book"
+                aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="Search()">Search</button>
+                <button id="test" value="Test Arrow" ></button>
+            </div>
+            <div id="total">0</div>
+        </div>
+
+
+        <div class="row" id="library-content">
+            <!--  -->
+        </div>
+
+        <div class="row" id="categorized">
+
+        </div>
+    </div>
+
+
+    <script>
+        let bookCollection = []
+
+        function renderBooks(books, whereTo = "library-content") {
+            // if (!whereTo) whereTo = "library-content"
+            const parent = document.getElementById(whereTo)
+
+            parent.innerHTML = books.map(book => `<div class="card col-4" >
+                    <img class="card-img-top" src="${book.img}" alt="Card image cap">
+                    <div class="card-body">
+                    <h5 class="card-title">${book.title}</h5>
+                    <p class="card-text">${book.price}</p>
+                    </div>
+                </div>`)
+                .join("")
+        }
+
+        window.onload = async function () {
+            console.log("the page is loaded")
+            fetch("https://striveschool-api.herokuapp.com/books?title=dragon") // get the info
+                .then(result => result.json()) // parse the info as JSON
+                .then(books => { // use the information 
+                    bookCollection = books // save the result in my global variable
+                    renderBooks(books)
+
+                    // dividing the objects by category (one array for each category)
+                    const categorizedBooks = bookCollection.reduce((acc, curr) => {
+                            if (acc[curr.category])
+                                acc[curr.category].push(curr)
+                            else 
+                                acc[curr.category] = [ curr ]
+                        
+                        return acc    
+                    }, {})
+
+
+                    const categorized = document.querySelector("#categorized")
+                    for (const category in categorizedBooks){ // for each category in my object
+                        const categoryContent = categorizedBooks[category].map(book => `<div class="card col-4" >
+                            <img class="card-img-top" src="${book.img}" alt="Card image cap">
+                            <div class="card-body">
+                            <h5 class="card-title">${book.title}</h5>
+                            <p class="card-text">${book.price}</p>
+                            </div>
+                        </div>`)
+                        .join("")
+
+                        const categoryHTML = document.createElement("div")
+                        categoryHTML.classList.add("row")
+                        categoryHTML.innerHTML = `<h2>${category} </h2>`
+                        categoryHTML.innerHTML += categoryContent
+                        categorized.appendChild(categoryHTML)
+
+                    }
+                    // console.log(books.map(book => book.price))
+                    // const booksAsHTML = books.map(book => `<div class="card col-4" >
+                    //                     <img class="card-img-top" src="${book.img}" alt="Card image cap">
+                    //                     <div class="card-body">
+                    //                     <h5 class="card-title">${book.title}</h5>
+                    //                     <p class="card-text">${book.price}</p>
+                    //                     </div>
+                    //                 </div>`)
+                    // use map to create a new HTML element for each book in the array
+                    // const libraryContent = booksAsHTML.join("")
+                    // use join to transform the array of HTML elements into a simple string
+                    // parent.innerHTML = libraryContent
+                    // replace the content of the parent element with this new HTML content 
+                })
+        }
+
+        function Search() {
+            // get the content of the search bar
+            const searchBar = document.querySelector("#searchSection>input")
+            const searchQuery = searchBar.value
+            // use the content of the search bar in a search by title
+            const booksToBeRendered = bookCollection.filter(book => book.title.includes(searchQuery))
+            // re-render the content of the books section
+            renderBooks(booksToBeRendered)
+
+            // let total = 0
+            // booksToBeRendered.forEach(book => total += book.price)
+            // document.querySelector("#total").innerHTML = total + " €"
+
+            document.querySelector("#total").innerHTML = booksToBeRendered.reduce((acc, curr) => acc += curr.price, 0) + "€"
+        }
+
+        function rearrangeArray(array, number){
+            return array.reduce((acc, curr, i) => {
+                if (acc[i % number]) acc[i % number].push(curr)
+                else acc[i % number] = [ curr ]
+                return acc
+            }, {})
+        }
+
+// DIVIDE in 3
+//         const result = [
+// bookCollection.slice(0, Math.floor(total /3)),
+// bookCollection.slice(Math.floor(total /3), Math.floor(total /3) *2),
+//     bookCollection.slice(Math.floor(total /3), Math.floor(total /3) *2)]
+
+//         bookCollection.reduce((acc, curr) => {
+//     if (curr.price > 10)
+//         acc.expensive.push(curr)
+//     else if (curr.price > 5)
+//         acc.mediumPriced.push(curr)
+//     else 
+//         acc.lessThen5.push(curr)
+
+//     return acc
+// }, {
+//    lessThen5: [],
+//    mediumPriced: [],
+//    expensive: []
+// })
+
+    </script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
