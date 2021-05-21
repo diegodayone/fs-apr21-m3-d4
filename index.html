@@ -132,10 +132,11 @@
         }
 
 // DIVIDE in 3
+        // total = bookCollection.length
 //         const result = [
 // bookCollection.slice(0, Math.floor(total /3)),
-// bookCollection.slice(Math.floor(total /3), Math.floor(total /3) *2),
-//     bookCollection.slice(Math.floor(total /3), Math.floor(total /3) *2)]
+// bookCollection.slice(Math.ceil(total /3), Math.ceil(total /3) *2),
+// bookCollection.slice(Math.ceil(total /3) * 2, total +1] // if 'end' (excluded by default) is greater than 'array.length' it will include the last index.
 
 //         bookCollection.reduce((acc, curr) => {
 //     if (curr.price > 10)
